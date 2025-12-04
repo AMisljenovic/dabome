@@ -1,12 +1,18 @@
 {
   "name": "dabome",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Dabome Programming Language Interpreter",
+  "main": "src/main.ts",
+  "bin": {
+    "dabome": "./dist/main.js"
+  },
   "scripts": {
+    "start": "ts-node src/main.ts",
+    "run": "ts-node src/main.ts",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["programming-language", "interpreter", "typescript"],
   "author": "",
   "license": "ISC",
   "devDependencies": {

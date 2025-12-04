@@ -10,6 +10,8 @@ export enum TokenType {
   If,
   Else,
   Return,
+  While,
+  For,
 
   // Operatori i Interpunkcija
   BinaryOperator, // +, -, *, /
