@@ -4,7 +4,7 @@ import { Stmt } from "../ast.ts";
 import Environment from "./environment.ts";
 
 // Tipovi vrednosti koje naš jezik može da ima u runtime-u
-export type ValueType = "null" | "number" | "function" | "native-fn";
+export type ValueType = "null" | "number" | "string" | "function" | "native-fn";
 
 // Bazni interfejs za sve runtime vrednosti
 export interface RuntimeVal {
@@ -21,6 +21,12 @@ export interface NullVal extends RuntimeVal {
 export interface NumberVal extends RuntimeVal {
   type: "number";
   value: number;
+}
+
+// String vrednost
+export interface StringVal extends RuntimeVal {
+  type: "string";
+  value: string;
 }
 
 // Tip za native funkcije (ugrađene u interpreter)
@@ -48,6 +54,10 @@ export function MK_NULL(): NullVal {
 
 export function MK_NUMBER(n: number = 0): NumberVal {
   return { type: "number", value: n };
+}
+
+export function MK_STRING(s: string = ""): StringVal {
+  return { type: "string", value: s };
 }
 
 export function MK_NATIVE_FN(call: FunctionCall): NativeFnVal {

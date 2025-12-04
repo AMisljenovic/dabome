@@ -1,0 +1,26 @@
+let ime = "Dabome"
+let verzija = "0.6"
+
+print("Pozdrav iz " + ime + " jezika!")
+print("Verzija: " + verzija)
+
+let x = 42
+print("Broj je: " + x)
+
+fn pozdrav(ime) {
+  "Zdravo, " + ime + "!"
+}
+
+print(pozdrav("Svete"))
+print(pozdrav("Deno"))
+
+let poruka = "Dabome "
+let i = 0
+while (i < 3) {
+  poruka = poruka + "radi "
+  i = i + 1
+}
+print(poruka)
+
+print("Escape test: Tab:\tNewline:")
+print("Navodnici: \"Ovo je u navodnicima\"")

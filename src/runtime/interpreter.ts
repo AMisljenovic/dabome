@@ -1,19 +1,24 @@
 // src/runtime/interpreter.ts
 
 import { 
-  RuntimeVal, NumberVal, FunctionVal, NativeFnVal,
-  MK_NULL, MK_NUMBER 
+  RuntimeVal, NumberVal, StringVal, FunctionVal, NativeFnVal,
+  MK_NULL, MK_NUMBER, MK_STRING
 } from "./values.ts";
 import Environment from "./environment.ts";
 import { 
-  Stmt, Program, BinaryExpr, NumericLiteral, Identifier,
+  Stmt, Program, BinaryExpr, NumericLiteral, StringLiteral, Identifier,
   VarDeclaration, AssignmentExpr, FunctionDeclaration, CallExpr,
-  WhileStmt, ForStmt
+  IfStmt, WhileStmt, ForStmt
 } from "../ast.ts";
 
 // Evaluira numerički literal
 function eval_numeric_literal(node: NumericLiteral): NumberVal {
   return MK_NUMBER(node.value);
+}
+
+// Evaluira string literal
+function eval_string_literal(node: StringLiteral): StringVal {
+  return MK_STRING(node.value);
 }
 
 // Evaluira identifier - traži varijablu u environment-u
@@ -26,7 +31,7 @@ function eval_binary_expr(binop: BinaryExpr, env: Environment): RuntimeVal {
   const leftVal = evaluate(binop.left, env);
   const rightVal = evaluate(binop.right, env);
 
-  // Za sada podržavamo samo numeričke operacije
+  // Numeričke operacije
   if (leftVal.type === "number" && rightVal.type === "number") {
     return eval_numeric_binary_expr(
       leftVal as NumberVal, 
@@ -35,8 +40,29 @@ function eval_binary_expr(binop: BinaryExpr, env: Environment): RuntimeVal {
     );
   }
 
-  // Ako nisu oba broja, vraćamo null
+  // String konkatenacija sa +
+  if (binop.operator === "+") {
+    // Ako je bar jedan string, konvertuj oba u string i spoji
+    if (leftVal.type === "string" || rightVal.type === "string") {
+      const leftStr = valueToString(leftVal);
+      const rightStr = valueToString(rightVal);
+      return MK_STRING(leftStr + rightStr);
+    }
+  }
+
+  // Ako nisu kompatibilni tipovi, vraćamo null
   return MK_NULL();
+}
+
+// Konvertuje RuntimeVal u string
+function valueToString(val: RuntimeVal): string {
+  switch (val.type) {
+    case "string": return (val as StringVal).value;
+    case "number": return String((val as NumberVal).value);
+    case "null": return "null";
+    case "function": return "[Function]";
+    default: return "[Unknown]";
+  }
 }
 
 // Računa numeričke binarne operacije
@@ -73,6 +99,12 @@ function eval_numeric_binary_expr(
       break;
     case ">":
       result = left.value > right.value ? 1 : 0;
+      break;
+    case "==":
+      result = left.value === right.value ? 1 : 0;
+      break;
+    case "!=":
+      result = left.value !== right.value ? 1 : 0;
       break;
     default:
       console.error("Nepoznat operator:", operator);
@@ -163,6 +195,31 @@ function eval_call_expr(call: CallExpr, env: Environment): RuntimeVal {
   Deno.exit(1);
 }
 
+// Evaluira if statement
+function eval_if_stmt(stmt: IfStmt, env: Environment): RuntimeVal {
+  const condition = evaluate(stmt.condition, env);
+  
+  if (isTruthy(condition)) {
+    // Izvrši then blok
+    let result: RuntimeVal = MK_NULL();
+    const scope = new Environment(env);
+    for (const s of stmt.thenBranch) {
+      result = evaluate(s, scope);
+    }
+    return result;
+  } else if (stmt.elseBranch) {
+    // Izvrši else blok
+    let result: RuntimeVal = MK_NULL();
+    const scope = new Environment(env);
+    for (const s of stmt.elseBranch) {
+      result = evaluate(s, scope);
+    }
+    return result;
+  }
+  
+  return MK_NULL();
+}
+
 // Evaluira while petlju
 function eval_while_stmt(stmt: WhileStmt, env: Environment): RuntimeVal {
   let result: RuntimeVal = MK_NULL();
@@ -222,6 +279,9 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
     case "NumericLiteral":
       return eval_numeric_literal(astNode as NumericLiteral);
 
+    case "StringLiteral":
+      return eval_string_literal(astNode as StringLiteral);
+
     case "Identifier":
       return eval_identifier(astNode as Identifier, env);
 
@@ -242,6 +302,9 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
 
     case "CallExpr":
       return eval_call_expr(astNode as CallExpr, env);
+
+    case "IfStmt":
+      return eval_if_stmt(astNode as IfStmt, env);
 
     case "WhileStmt":
       return eval_while_stmt(astNode as WhileStmt, env);

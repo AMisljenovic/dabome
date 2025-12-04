@@ -1,8 +1,8 @@
 // src/parser.ts
 import { 
-  Stmt, Program, Expr, BinaryExpr, NumericLiteral, Identifier,
+  Stmt, Program, Expr, BinaryExpr, NumericLiteral, StringLiteral, Identifier,
   VarDeclaration, AssignmentExpr, FunctionDeclaration, CallExpr,
-  WhileStmt, ForStmt
+  IfStmt, WhileStmt, ForStmt
 } from "./ast.ts";
 
 import { Token, TokenType } from "./token.ts";
@@ -66,6 +66,8 @@ export default class Parser {
         return this.parse_var_declaration();
       case TokenType.Fn:
         return this.parse_fn_declaration();
+      case TokenType.If:
+        return this.parse_if_stmt();
       case TokenType.While:
         return this.parse_while_stmt();
       case TokenType.For:
@@ -110,6 +112,54 @@ export default class Parser {
       parameters: params,
       body,
     } as FunctionDeclaration;
+  }
+
+  // Parsira: if (uslov) { ... } else { ... }
+  private parse_if_stmt(): Stmt {
+    this.eat(); // pojedi 'if'
+    
+    this.expect(TokenType.OpenParen, "Očekivano '(' posle 'if'.");
+    const condition = this.parse_expr();
+    this.expect(TokenType.CloseParen, "Očekivano ')' posle uslova.");
+
+    this.expect(TokenType.OpenBrace, "Očekivano '{' za then blok.");
+    
+    const thenBranch: Stmt[] = [];
+    while (this.at()!.type !== TokenType.EOF && this.at()!.type !== TokenType.CloseBrace) {
+      thenBranch.push(this.parse_stmt());
+    }
+    
+    this.expect(TokenType.CloseBrace, "Očekivano '}' na kraju then bloka.");
+
+    // Opcioni else blok
+    let elseBranch: Stmt[] | undefined = undefined;
+    
+    if (this.at()!.type === TokenType.Else) {
+      this.eat(); // pojedi 'else'
+      
+      // Proveri da li je else if
+      if (this.at()!.type === TokenType.If) {
+        // else if - rekurzivno parsiraj kao jedan statement u else bloku
+        elseBranch = [this.parse_if_stmt()];
+      } else {
+        // Običan else blok
+        this.expect(TokenType.OpenBrace, "Očekivano '{' za else blok.");
+        
+        elseBranch = [];
+        while (this.at()!.type !== TokenType.EOF && this.at()!.type !== TokenType.CloseBrace) {
+          elseBranch.push(this.parse_stmt());
+        }
+        
+        this.expect(TokenType.CloseBrace, "Očekivano '}' na kraju else bloka.");
+      }
+    }
+
+    return {
+      kind: "IfStmt",
+      condition,
+      thenBranch,
+      elseBranch,
+    } as IfStmt;
   }
 
   // Parsira: while (uslov) { ... }
@@ -233,11 +283,16 @@ export default class Parser {
     return left;
   }
 
-  // Parsira poređenje: <, >
+  // Parsira poređenje: <, >, ==, !=
   private parse_comparison_expr(): Expr {
     let left = this.parse_additive_expr();
 
-    while (this.at()!.value == "<" || this.at()!.value == ">") {
+    while (
+      this.at()!.value == "<" || 
+      this.at()!.value == ">" ||
+      this.at()!.value == "==" ||
+      this.at()!.value == "!="
+    ) {
       const operator = this.eat().value;
       const right = this.parse_additive_expr();
       left = {
@@ -336,7 +391,7 @@ export default class Parser {
     return args;
   }
 
-  // Najviši prioritet: Brojevi, Zagrade, Varijable
+  // Najviši prioritet: Brojevi, Stringovi, Zagrade, Varijable
   private parse_primary_expr(): Expr {
     const tk = this.at()!.type;
 
@@ -349,6 +404,12 @@ export default class Parser {
           kind: "NumericLiteral", 
           value: parseFloat(this.eat().value) 
         } as NumericLiteral;
+
+      case TokenType.String:
+        return {
+          kind: "StringLiteral",
+          value: this.eat().value
+        } as StringLiteral;
 
       case TokenType.OpenParen:
         this.eat(); // pojedi '('

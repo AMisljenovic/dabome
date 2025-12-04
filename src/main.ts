@@ -2,14 +2,14 @@ import * as path from "https://deno.land/std@0.208.0/path/mod.ts";
 import Parser from "./parser.ts";
 import { evaluate } from "./runtime/interpreter.ts";
 import { createGlobalEnv } from "./runtime/environment.ts";
-import { RuntimeVal, NumberVal } from "./runtime/values.ts";
+import { RuntimeVal, NumberVal, StringVal } from "./runtime/values.ts";
 
 // Uzmi argument iz komandne linije
 const args = Deno.args;
 
 if (args.length === 0) {
   // REPL mode - interaktivni mod
-  console.log("🚀 DABOME REPL v0.5 (Deno)");
+  console.log("🚀 DABOME REPL v0.6 (Deno)");
   console.log("Unesi kod ili 'izlaz' za izlaz.\n");
   
   const parser = new Parser();
@@ -43,6 +43,8 @@ if (args.length === 0) {
       
       if (result.type === "number") {
         console.log((result as NumberVal).value);
+      } else if (result.type === "string") {
+        console.log(`"${(result as StringVal).value}"`);
       } else if (result.type === "function") {
         console.log("[Function]");
       }

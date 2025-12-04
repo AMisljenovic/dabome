@@ -2,6 +2,7 @@
 export enum TokenType {
   // Literali
   Number,
+  String,
   Identifier, // Imena varijabli i funkcija
 
   // Ključne reči

@@ -1,0 +1,73 @@
+let x = 10
+let y = 5
+
+if (x > y) {
+  print("x je vece od y")
+}
+
+if (x < y) {
+  print("x je manje od y")
+} else {
+  print("x nije manje od y")
+}
+
+let broj = 15
+
+if (broj < 10) {
+  print("mali")
+} else if (broj < 20) {
+  print("srednji")
+} else {
+  print("veliki")
+}
+
+fn max(a, b) {
+  if (a > b) {
+    a
+  } else {
+    b
+  }
+}
+
+print("max(10, 20) = " + max(10, 20))
+print("max(50, 30) = " + max(50, 30))
+
+fn apsolutna(n) {
+  if (n < 0) {
+    0 - n
+  } else {
+    n
+  }
+}
+
+print("abs(-5) = " + apsolutna(0 - 5))
+print("abs(10) = " + apsolutna(10))
+
+let a = 5
+let b = 5
+if (a == b) {
+  print("a je jednako b")
+}
+
+if (a != 10) {
+  print("a nije 10")
+}
+
+fn fizzbuzz(n) {
+  let i = 1
+  while (i < n + 1) {
+    if (i % 15 == 0) {
+      print("FizzBuzz")
+    } else if (i % 3 == 0) {
+      print("Fizz")
+    } else if (i % 5 == 0) {
+      print("Buzz")
+    } else {
+      print(i)
+    }
+    i = i + 1
+  }
+}
+
+print("FizzBuzz 1-15:")
+fizzbuzz(15)

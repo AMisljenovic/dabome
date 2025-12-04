@@ -52,13 +52,44 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift()!, TokenType.BinaryOperator));
     } else if (src[0] == "<" || src[0] == ">") {
       tokens.push(token(src.shift()!, TokenType.BinaryOperator));
+    } else if (src[0] == "=" && src[1] == "=") {
+      src.shift(); src.shift(); // pojedi '=='
+      tokens.push(token("==", TokenType.BinaryOperator));
+    } else if (src[0] == "!" && src[1] == "=") {
+      src.shift(); src.shift(); // pojedi '!='
+      tokens.push(token("!=", TokenType.BinaryOperator));
     } else if (src[0] == "=") {
       tokens.push(token(src.shift()!, TokenType.Equals));
     } else if (src[0] == ",") {
         tokens.push(token(src.shift()!, TokenType.Comma));
-    } 
+    }
     
-    // 2. Obrađujemo višecifrene tokene
+    // 2. String literali (dvostruki navodnici)
+    else if (src[0] == '"') {
+      src.shift(); // pojedi otvarajući "
+      let str = "";
+      while (src.length > 0 && src[0] != '"') {
+        // Podrška za escape karaktere
+        if (src[0] == '\\' && src.length > 1) {
+          src.shift(); // pojedi \
+          const escaped = src.shift()!;
+          switch (escaped) {
+            case 'n': str += '\n'; break;
+            case 't': str += '\t'; break;
+            case 'r': str += '\r'; break;
+            case '"': str += '"'; break;
+            case '\\': str += '\\'; break;
+            default: str += escaped;
+          }
+        } else {
+          str += src.shift();
+        }
+      }
+      src.shift(); // pojedi zatvarajući "
+      tokens.push(token(str, TokenType.String));
+    }
+    
+    // 3. Obrađujemo višecifrene tokene
     else {
       
       // Brojevi

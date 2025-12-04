@@ -1,6 +1,6 @@
 // src/runtime/environment.ts
 
-import { RuntimeVal, MK_NULL, MK_NUMBER, MK_NATIVE_FN, NumberVal } from "./values.ts";
+import { RuntimeVal, MK_NULL, MK_NUMBER, MK_NATIVE_FN, NumberVal, StringVal } from "./values.ts";
 
 // Environment - čuva varijable i njihove vrednosti
 export default class Environment {
@@ -66,6 +66,7 @@ export function createGlobalEnv(): Environment {
   env.declareVar("print", MK_NATIVE_FN((args, _scope) => {
     const output = args.map(arg => {
       if (arg.type === "number") return (arg as NumberVal).value;
+      if (arg.type === "string") return (arg as StringVal).value;
       if (arg.type === "null") return "null";
       if (arg.type === "function") return "[Function]";
       return arg;

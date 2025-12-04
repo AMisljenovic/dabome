@@ -7,11 +7,13 @@ export type NodeType =
   | "Program" 
   | "VarDeclaration"
   | "FunctionDeclaration"
+  | "IfStmt"
   | "WhileStmt"
   | "ForStmt"
   | "AssignmentExpr"
   | "CallExpr"
-  | "NumericLiteral" 
+  | "NumericLiteral"
+  | "StringLiteral"
   | "Identifier" 
   | "BinaryExpr";
 
@@ -43,6 +45,14 @@ export interface FunctionDeclaration extends Stmt {
   name: string;
   parameters: string[];
   body: Stmt[];
+}
+
+// If statement: if (uslov) { ... } else { ... }
+export interface IfStmt extends Stmt {
+  kind: "IfStmt";
+  condition: Expr;
+  thenBranch: Stmt[];
+  elseBranch?: Stmt[];  // Opciono - može biti bez else
 }
 
 // While petlja: while (uslov) { ... }
@@ -100,4 +110,10 @@ export interface Identifier extends Expr {
 export interface NumericLiteral extends Expr {
   kind: "NumericLiteral";
   value: number;
+}
+
+// Primer: "hello", "world"
+export interface StringLiteral extends Expr {
+  kind: "StringLiteral";
+  value: string;
 }
