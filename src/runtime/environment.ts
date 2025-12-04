@@ -1,6 +1,6 @@
 // src/runtime/environment.ts
 
-import { RuntimeVal, MK_NULL, MK_NUMBER, MK_NATIVE_FN, NumberVal } from "./values";
+import { RuntimeVal, MK_NULL, MK_NUMBER, MK_NATIVE_FN, NumberVal } from "./values.ts";
 
 // Environment - čuva varijable i njihove vrednosti
 export default class Environment {
@@ -16,7 +16,7 @@ export default class Environment {
   public declareVar(varname: string, value: RuntimeVal): RuntimeVal {
     if (this.variables.has(varname)) {
       console.error(`Greška: Varijabla '${varname}' je već deklarisana.`);
-      process.exit(1);
+      Deno.exit(1);
     }
 
     this.variables.set(varname, value);
@@ -44,7 +44,7 @@ export default class Environment {
 
     if (this.parent == undefined) {
       console.error(`Greška: Varijabla '${varname}' ne postoji.`);
-      process.exit(1);
+      Deno.exit(1);
     }
 
     return this.parent.resolve(varname);

@@ -1,7 +1,7 @@
 // src/runtime/values.ts
 
-import { Stmt } from "../ast";
-import Environment from "./environment";
+import { Stmt } from "../ast.ts";
+import Environment from "./environment.ts";
 
 // Tipovi vrednosti koje naš jezik može da ima u runtime-u
 export type ValueType = "null" | "number" | "function" | "native-fn";

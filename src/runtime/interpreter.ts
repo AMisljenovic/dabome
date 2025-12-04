@@ -1,15 +1,15 @@
 // src/runtime/interpreter.ts
 
 import { 
-  RuntimeVal, NumberVal, NullVal, FunctionVal, NativeFnVal,
+  RuntimeVal, NumberVal, FunctionVal, NativeFnVal,
   MK_NULL, MK_NUMBER 
-} from "./values";
-import Environment from "./environment";
+} from "./values.ts";
+import Environment from "./environment.ts";
 import { 
   Stmt, Program, BinaryExpr, NumericLiteral, Identifier,
   VarDeclaration, AssignmentExpr, FunctionDeclaration, CallExpr,
   WhileStmt, ForStmt
-} from "../ast";
+} from "../ast.ts";
 
 // Evaluira numerički literal
 function eval_numeric_literal(node: NumericLiteral): NumberVal {
@@ -61,7 +61,7 @@ function eval_numeric_binary_expr(
       // Provera deljenja nulom
       if (right.value === 0) {
         console.error("Greška: Deljenje nulom!");
-        process.exit(1);
+        Deno.exit(1);
       }
       result = left.value / right.value;
       break;
@@ -76,7 +76,7 @@ function eval_numeric_binary_expr(
       break;
     default:
       console.error("Nepoznat operator:", operator);
-      process.exit(1);
+      Deno.exit(1);
   }
 
   return MK_NUMBER(result);
@@ -106,7 +106,7 @@ function eval_var_declaration(declaration: VarDeclaration, env: Environment): Ru
 function eval_assignment(node: AssignmentExpr, env: Environment): RuntimeVal {
   if (node.assigne.kind !== "Identifier") {
     console.error("Greška: Leva strana dodele mora biti varijabla.");
-    process.exit(1);
+    Deno.exit(1);
   }
 
   const varname = (node.assigne as Identifier).symbol;
@@ -160,7 +160,7 @@ function eval_call_expr(call: CallExpr, env: Environment): RuntimeVal {
   }
 
   console.error("Greška: Pokušaj poziva nečega što nije funkcija:", fn);
-  process.exit(1);
+  Deno.exit(1);
 }
 
 // Evaluira while petlju
@@ -251,6 +251,6 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
 
     default:
       console.error("Ovaj AST čvor još nije podržan za evaluaciju:", astNode);
-      process.exit(1);
+      Deno.exit(1);
   }
 }

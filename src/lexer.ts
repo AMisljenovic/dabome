@@ -1,5 +1,5 @@
 // src/lexer.ts
-import { Token, token, TokenType } from "./token";
+import { Token, token, TokenType } from "./token.ts";
 
 
 // src/lexer.ts

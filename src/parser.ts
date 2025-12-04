@@ -3,10 +3,10 @@ import {
   Stmt, Program, Expr, BinaryExpr, NumericLiteral, Identifier,
   VarDeclaration, AssignmentExpr, FunctionDeclaration, CallExpr,
   WhileStmt, ForStmt
-} from "./ast";
+} from "./ast.ts";
 
-import { Token, TokenType } from "./token";
-import { tokenize } from "./lexer";
+import { Token, TokenType } from "./token.ts";
+import { tokenize } from "./lexer.ts";
 
 export default class Parser {
   private tokens: Token[] = [];
@@ -31,11 +31,11 @@ export default class Parser {
   
   // Očekuje specifičan token, inače baca grešku
   // (Koristićemo kasnije za zagrade)
-  private expect(type: TokenType, err: any) {
+  private expect(type: TokenType, err: string) {
     const prev = this.tokens.shift() as Token;
     if (!prev || prev.type != type) {
       console.error("Parser Error:\n", err, prev, " - Ocekivano: ", type);
-      process.exit(1);
+      Deno.exit(1);
     }
     return prev;
   }
@@ -90,7 +90,7 @@ export default class Parser {
     for (const arg of args) {
       if (arg.kind !== "Identifier") {
         console.error("Parametri funkcije moraju biti identifieri.");
-        process.exit(1);
+        Deno.exit(1);
       }
       params.push((arg as Identifier).symbol);
     }
@@ -358,8 +358,7 @@ export default class Parser {
 
       default:
         console.error("Neocekivan token u parseru:", this.at());
-        process.exit(1);
-        return {} as Expr;
+        Deno.exit(1);
     }
   }
 }
